@@ -6,7 +6,9 @@ A MATLAB implementation of Nested Aggregation of Experts using Inducing Point (N
 
 ## Usage
 To run the code on MATLAB, 
-    main_NAEIP
+```
+main_NAEIP
+```
 
 ## License
 This software is released under the MIT License, see LICENSE.
