@@ -5,17 +5,20 @@ A MATLAB implementation of Nested Aggregation of Experts using Inducing Point (N
 - [GPML MATLAB Code](http://www.gaussianprocess.org/gpml/code/matlab/doc/)
 
 ## Usage
-To run the code on MATLAB, 
+Run on MATLAB 
 ```
 main_NAEIP
 ```
 
 ## License
-This software is released under the MIT License, see LICENSE.
+This project is licensed under the MIT License, see the LICENSE file for details.
 
 ## Author
 [Ayano NAKAI-KASAI](https://sites.google.com/view/ayano-nakai/home)
+Graduate School of Informatics, Kyoto University
+nakai.ayano@sys.i.kyoto-u.ac.jp
 
+## Acknowledgment
 Some parts of functions are based on the implementation by Haitao Liu (Liu et al., 2018).
 
 ## References
