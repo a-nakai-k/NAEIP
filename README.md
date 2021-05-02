@@ -15,7 +15,9 @@ This project is licensed under the MIT License, see the LICENSE file for details
 
 ## Author
 [Ayano NAKAI-KASAI](https://sites.google.com/view/ayano-nakai/home)
+
 Graduate School of Informatics, Kyoto University
+
 nakai.ayano@sys.i.kyoto-u.ac.jp
 
 ## Acknowledgment
