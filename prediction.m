@@ -4,15 +4,15 @@ function [mu,s2,t_predict] = prediction(xtest,models,criterion,varargin)
 %  Xt: test points
 %  models: p submodels
 %  criterion: NAE-IP with 5 options
-%             'NAEIPbt': nested aggregation of experts, only use test inputs, 'blockwise' extension of NPAE
-%             'NAEIPur':nested aggregation of experts using inducing points with excluding-scheme
-%             'NAEIPbtur':nested aggregation of experts using inducing points with including-scheme
-%             'NAEIPbtot': nested aggregation of experts using test points and other test inputs
-%             'NAEIPat': nested aggregation of experts using random test points
+%             'NAEIPbt': blockwise test points
+%             'NAEIPnt': non-test points
+%             'NAEIPbtnt': blockwise test points + non-test points
+%             'NAEIPbtot': blockwise test points + other test points
+%             'NAEIPat': arbitrary test points
 %  varargin: variables for NAE-IP
 %            nt: number of test inputs processing at once, for NAEIPbt
 %            nip: number of inducing points, for NAEIPbtot and NAEIPat
-%            Xip: p cells of inducing points, for NAEIPur and NAEIPbtur
+%            Xip: p cells of inducing points, for NAEIPnt and NAEIPbtnt
 % Outputs:
 %  mu: predictive mean
 %  s2: predictive variance
@@ -22,7 +22,7 @@ function [mu,s2,t_predict] = prediction(xtest,models,criterion,varargin)
 % Some parts of functions are based on the implementation by Haitao Liu (H.
 % Liu et al., ICML 2018; https://github.com/LiuHaiTao01/GRBCM)
 
-if nargin==6   % NAEIPur and NAEIPbtur
+if nargin==6   % NAEIPnt and NAEIPbtnt
     nt = varargin{1};
     nip = varargin{2};
     Xip = varargin{3};
@@ -93,13 +93,13 @@ switch criterion
                 [MuA((j-1)*nu+1:j*nu),~] = gp(models{j}.hyp,models{j}.inffunc,models{j}.meanfunc, ...
                                        models{j}.covfunc,models{j}.likfunc,models{j}.Xi,models{j}.Zi,[xt;Xipot{j}]);
             end
-            kA = kernelVector_nestedKG_NAEIPbtur(xt,models,K_invs,Xipot);
-            [~,KA_inv] = kernelMatrix_nestedKG_NAEIPbtur(xt,models,K_invs,K_cross,Xipot);
+            kA = kernelVector_nestedKG_NAEIPbtnt(xt,models,K_invs,Xipot);
+            [~,KA_inv] = kernelMatrix_nestedKG_NAEIPbtnt(xt,models,K_invs,K_cross,Xipot);
 
             mu(Idx) = kA'*KA_inv*MuA;
             s2(Idx) = ktt(Idx) - diag(kA'*KA_inv*kA) + exp(2*hyp_lik);
         end
-    case 'NAEIPbtur'
+    case 'NAEIPbtnt'
         Numt = ceil(ntest/nt);
         for i = 1:Numt
             if i*nt > ntest
@@ -114,8 +114,8 @@ switch criterion
                 [MuA((j-1)*nu+1:j*nu),~] = gp(models{j}.hyp,models{j}.inffunc,models{j}.meanfunc, ...
                                        models{j}.covfunc,models{j}.likfunc,models{j}.Xi,models{j}.Zi,[xt;Xip{j}]);
             end
-            kA = kernelVector_nestedKG_NAEIPbtur(xt,models,K_invs,Xip);
-            [~,KA_inv] = kernelMatrix_nestedKG_NAEIPbtur(xt,models,K_invs,K_cross,Xip);
+            kA = kernelVector_nestedKG_NAEIPbtnt(xt,models,K_invs,Xip);
+            [~,KA_inv] = kernelMatrix_nestedKG_NAEIPbtnt(xt,models,K_invs,K_cross,Xip);
 
             mu(Idx) = kA'*KA_inv*MuA;
             s2(Idx) = ktt(Idx) - diag(kA'*KA_inv*kA) + exp(2*hyp_lik);
@@ -129,7 +129,7 @@ switch criterion
             [MuA((i-1)*nu+1:i*nu),~] = gp(models{i}.hyp,models{i}.inffunc,models{i}.meanfunc, ...
                                    models{i}.covfunc,models{i}.likfunc,models{i}.Xi,models{i}.Zi,Xipat{i});
         end
-        [~,KA_inv] = kernelMatrix_nestedKG_NAEIPur(models,K_invs,K_cross,Xipat);
+        [~,KA_inv] = kernelMatrix_nestedKG_NAEIPnt(models,K_invs,K_cross,Xipat);
         Numt = ceil(ntest/nt);
         for i = 1:Numt
             if i*nt > ntest
@@ -138,12 +138,12 @@ switch criterion
                 Idx = (i-1)*nt+1:i*nt;
             end
             xt = xtest(Idx,:);
-            kA = kernelVector_nestedKG_NAEIPur(xt,models,K_invs,Xipat);
+            kA = kernelVector_nestedKG_NAEIPnt(xt,models,K_invs,Xipat);
 
             mu(Idx) = kA'*KA_inv*MuA;
             s2(Idx) = ktt(Idx) - diag(kA'*KA_inv*kA) + exp(2*hyp_lik);
         end
-    case 'NAEIPur'
+    case 'NAEIPnt'
         for i = 1:p 
             [mui{i},~] = gp(models{i}.hyp,models{i}.inffunc,models{i}.meanfunc, ...
                                        models{i}.covfunc,models{i}.likfunc,models{i}.Xi,models{i}.Zi,Xip{i});
@@ -151,7 +151,7 @@ switch criterion
         nu = nip;                       % dimension
         MuA = zeros(nu*p,1);
         for i = 1:p, MuA((i-1)*nip+1:i*nip) = mui{i}; end
-        [~,KA_inv] = kernelMatrix_nestedKG_NAEIPur(models,K_invs,K_cross,Xip);
+        [~,KA_inv] = kernelMatrix_nestedKG_NAEIPnt(models,K_invs,K_cross,Xip);
 
         Numt = ceil(ntest/nt);
         for i = 1:Numt
@@ -161,13 +161,13 @@ switch criterion
                 Idx = (i-1)*nt+1:i*nt;
             end
             xt = xtest(Idx,:);
-            kA = kernelVector_nestedKG_NAEIPur(xt,models,K_invs,Xip);
+            kA = kernelVector_nestedKG_NAEIPnt(xt,models,K_invs,Xip);
 
             mu(Idx) = kA'*KA_inv*MuA;
             s2(Idx) = ktt(Idx) - diag(kA'*KA_inv*kA) + exp(2*hyp_lik);
         end
     otherwise
-        error('Use NAEIPbt, NAEIPbtot, NAEIPbtur, NAEIPat, or NAEIPur.');
+        error('Use NAEIPbt, NAEIPbtot, NAEIPbtnt, NAEIPat, or NAEIPnt.');
 end
 
 t_predict = cputime - t1;
@@ -276,7 +276,7 @@ KA_inv = eye(size(KA,1))/(KA + jitter*eye(size(KA,1)));
 end % end function
 
 
-function [KA,KA_inv] = kernelMatrix_nestedKG_NAEIPur(models,K_invs,K_cross,Xip)
+function [KA,KA_inv] = kernelMatrix_nestedKG_NAEIPnt(models,K_invs,K_cross,Xip)
 % construct the covariance of inducing points
 % used for the nestedKG criterion 
 p = length(models);
@@ -310,7 +310,7 @@ KA_inv = eye(size(KA,1))/(KA + jitter*eye(nip*p));
 end % end function
 
 
-function [KA,KA_inv] = kernelMatrix_nestedKG_NAEIPbtur(x,models,K_invs,K_cross,Xip)
+function [KA,KA_inv] = kernelMatrix_nestedKG_NAEIPbtnt(x,models,K_invs,K_cross,Xip)
 % construct the covariance of test + other points
 % used for the nestedKG criterion 
 p = length(models);
@@ -344,7 +344,7 @@ KA_inv = eye(size(KA,1))/(KA + jitter*eye(nip*p));
 end % end function
 
 
-function kA = kernelVector_nestedKG_NAEIPur(x,models,K_invs,Xip)
+function kA = kernelVector_nestedKG_NAEIPnt(x,models,K_invs,Xip)
 % construct the covariance between inducing points and training points
 % used for the nestedKG criterion 
 p = length(models);
@@ -367,7 +367,7 @@ end
 end % end function
 
 
-function kA = kernelVector_nestedKG_NAEIPbtur(x,models,K_invs,Xip)
+function kA = kernelVector_nestedKG_NAEIPbtnt(x,models,K_invs,Xip)
 % construct the covariance between test + other points and training points
 % used for the nestedKG criterion 
 p = length(models);

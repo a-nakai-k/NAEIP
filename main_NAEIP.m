@@ -30,12 +30,12 @@ t_NAEIPbt = zeros(nIteration,1);
 mse_NAEIPbt = zeros(nIteration,1); msll_NAEIPbt = zeros(nIteration,1);
 t_NAEIPbtot = zeros(nIteration,1);
 mse_NAEIPbtot = zeros(nIteration,1); msll_NAEIPbtot = zeros(nIteration,1);
-t_NAEIPbtur = zeros(nIteration,1);
-mse_NAEIPbtur = zeros(nIteration,1); msll_NAEIPbtur = zeros(nIteration,1);
+t_NAEIPbtnt = zeros(nIteration,1);
+mse_NAEIPbtnt = zeros(nIteration,1); msll_NAEIPbtnt = zeros(nIteration,1);
 t_NAEIPat = zeros(nIteration,1);
 mse_NAEIPat = zeros(nIteration,1); msll_NAEIPat = zeros(nIteration,1);
-t_NAEIPur = zeros(nIteration,1);
-mse_NAEIPur = zeros(nIteration,1); msll_NAEIPur = zeros(nIteration,1);
+t_NAEIPnt = zeros(nIteration,1);
+mse_NAEIPnt = zeros(nIteration,1); msll_NAEIPnt = zeros(nIteration,1);
 
 for itr = 1:nIteration
     disp(['Iteration = ' num2str(itr)]);
@@ -79,14 +79,14 @@ for itr = 1:nIteration
         models{i}.inffunc = inffunc;
     end
     
-    criterion = 'NAEIPbt' ; % NAEIPbt, NAEIPbtot, NAEIPbtur, NAEIPat, NAEIPur
+    criterion = 'NAEIPbt' ; % NAEIPbt, NAEIPbtot, NAEIPbtnt, NAEIPat, NAEIPnt
     [mu_NAEIPbt,s2_NAEIPbt,t_NAEIPbt(itr)] = prediction(xtest,models,criterion,nt);
     mu_NAEIPbt = mu_NAEIPbt*ztrain_std + ztrain_mean;
     s2_NAEIPbt = s2_NAEIPbt*ztrain_std^2;
     [mse_NAEIPbt(itr),msll_NAEIPbt(itr)] = Results(ztest,mu_NAEIPbt,s2_NAEIPbt);
     disp(['NAEIPbt: ' num2str(mse_NAEIPbt(itr)) ', ' num2str(msll_NAEIPbt(itr)) ', ' num2str(t_NAEIPbt(itr))]);
     
-    criterion = 'NAEIPbtot' ; % NAEIPbt, NAEIPbtot, NAEIPbtur, NAEIPat, NAEIPur
+    criterion = 'NAEIPbtot' ; % NAEIPbt, NAEIPbtot, NAEIPbtnt, NAEIPat, NAEIPnt
     nip = scale*nt - nt;            % number of inducing points except for test inputs
     [mu_NAEIPbtot,s2_NAEIPbtot,t_NAEIPbtot(itr)] = prediction(xtest,models,criterion,nt,nip);
     mu_NAEIPbtot = mu_NAEIPbtot*ztrain_std + ztrain_mean;
@@ -94,18 +94,18 @@ for itr = 1:nIteration
     [mse_NAEIPbtot(itr),msll_NAEIPbtot(itr)] = Results(ztest,mu_NAEIPbtot,s2_NAEIPbtot);
     disp(['NAEIPbtot: ' num2str(mse_NAEIPbtot(itr)) ', ' num2str(msll_NAEIPbtot(itr)) ', ' num2str(t_NAEIPbtot(itr))]);
     
-    criterion = 'NAEIPbtur' ; % NAEIPbt, NAEIPbtot, NAEIPbtur, NAEIPat, NAEIPur
+    criterion = 'NAEIPbtnt' ; % NAEIPbt, NAEIPbtot, NAEIPbtnt, NAEIPat, NAEIPnt
     nip = scale*nt - nt;            % number of inducing points except for test inputs
     for i = 1:p
         Xip{i} = repmat(models{i}.Ximean,nip,1) + repmat(std(models{i}.Xi),nip,1).*randn(nip,dtrain);
     end
-    [mu_NAEIPbtur,s2_NAEIPbtur,t_NAEIPbtur(itr)] = prediction(xtest,models,criterion,nt,nip,Xip);
-    mu_NAEIPbtur = mu_NAEIPbtur*ztrain_std + ztrain_mean;
-    s2_NAEIPbtur = s2_NAEIPbtur*ztrain_std^2;
-    [mse_NAEIPbtur(itr),msll_NAEIPbtur(itr)] = Results(ztest,mu_NAEIPbtur,s2_NAEIPbtur);
-    disp(['NAEIPbtur: ' num2str(mse_NAEIPbtur(itr)) ', ' num2str(msll_NAEIPbtur(itr)) ', ' num2str(t_NAEIPbtur(itr))]);
+    [mu_NAEIPbtnt,s2_NAEIPbtnt,t_NAEIPbtnt(itr)] = prediction(xtest,models,criterion,nt,nip,Xip);
+    mu_NAEIPbtnt = mu_NAEIPbtnt*ztrain_std + ztrain_mean;
+    s2_NAEIPbtnt = s2_NAEIPbtnt*ztrain_std^2;
+    [mse_NAEIPbtnt(itr),msll_NAEIPbtnt(itr)] = Results(ztest,mu_NAEIPbtnt,s2_NAEIPbtnt);
+    disp(['NAEIPbtnt: ' num2str(mse_NAEIPbtnt(itr)) ', ' num2str(msll_NAEIPbtnt(itr)) ', ' num2str(t_NAEIPbtnt(itr))]);
 
-    criterion = 'NAEIPat' ; % NAEIPbt, NAEIPbtot, NAEIPbtur, NAEIPat, NAEIPur
+    criterion = 'NAEIPat' ; % NAEIPbt, NAEIPbtot, NAEIPbtnt, NAEIPat, NAEIPnt
     nip = scale*nt;                 % number of inducing points
     [mu_NAEIPat,s2_NAEIPat,t_NAEIPat(itr)] = prediction(xtest,models,criterion,nt,nip);
     mu_NAEIPat = mu_NAEIPat*ztrain_std + ztrain_mean;
@@ -113,16 +113,16 @@ for itr = 1:nIteration
     [mse_NAEIPat(itr),msll_NAEIPat(itr)] = Results(ztest,mu_NAEIPat,s2_NAEIPat);
     disp(['NAEIPat: ' num2str(mse_NAEIPat(itr)) ', ' num2str(msll_NAEIPat(itr)) ', ' num2str(t_NAEIPat(itr))]);
     
-    criterion = 'NAEIPur' ; % NAEIPbt, NAEIPbtot, NAEIPbtur, NAEIPat, NAEIPur
+    criterion = 'NAEIPnt' ; % NAEIPbt, NAEIPbtot, NAEIPbtnt, NAEIPat, NAEIPnt
     nip = scale*nt;                 % number of inducing points
     for i = 1:p
         Xip{i} = repmat(models{i}.Ximean,nip,1) + repmat(std(models{i}.Xi),nip,1).*randn(nip,dtrain);
     end
-    [mu_NAEIPur,s2_NAEIPur,t_NAEIPur(itr)] = prediction(xtest,models,criterion,nt,nip,Xip);
-    mu_NAEIPur = mu_NAEIPur*ztrain_std + ztrain_mean;
-    s2_NAEIPur = s2_NAEIPur*ztrain_std^2;
-    [mse_NAEIPur(itr),msll_NAEIPur(itr)] = Results(ztest,mu_NAEIPur,s2_NAEIPur);
-    disp(['NAEIPur: ' num2str(mse_NAEIPur(itr)) ', ' num2str(msll_NAEIPur(itr)) ', ' num2str(t_NAEIPur(itr))]);
+    [mu_NAEIPnt,s2_NAEIPnt,t_NAEIPnt(itr)] = prediction(xtest,models,criterion,nt,nip,Xip);
+    mu_NAEIPnt = mu_NAEIPnt*ztrain_std + ztrain_mean;
+    s2_NAEIPnt = s2_NAEIPnt*ztrain_std^2;
+    [mse_NAEIPnt(itr),msll_NAEIPnt(itr)] = Results(ztest,mu_NAEIPnt,s2_NAEIPnt);
+    disp(['NAEIPnt: ' num2str(mse_NAEIPnt(itr)) ', ' num2str(msll_NAEIPnt(itr)) ', ' num2str(t_NAEIPnt(itr))]);
 
 end
 
