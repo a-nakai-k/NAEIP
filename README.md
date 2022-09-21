@@ -1,6 +1,9 @@
 # NAEIP
 A MATLAB implementation of Nested Aggregation of Experts using Inducing Point (NAE-IP), an approximation of Gaussian process regression.
 
+A. Nakai-Kasai and T. Tanaka, ''Nested aggregation of experts using inducing points for approximated Gaussian process regression,'' Mach. Learn., vol. 111, pp. 1671–1694, May. 2022. (with presentation in ECML PKDD 2022 Journal Track) 
+
+
 ## Requirement
 - [GPML MATLAB Code](http://www.gaussianprocess.org/gpml/code/matlab/doc/)
 
