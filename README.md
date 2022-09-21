@@ -14,11 +14,11 @@ main_NAEIP
 This project is licensed under the MIT License, see the LICENSE file for details.
 
 ## Author
-[Ayano NAKAI-KASAI](https://sites.google.com/view/ayano-nakai/home)
+[Ayano NAKAI-KASAI](https://sites.google.com/view/ayano-nakai/home/english)
 
-Graduate School of Informatics, Kyoto University
+Graduate School of Engineering, Nagoya Institute of Technology
 
-nakai.ayano@sys.i.kyoto-u.ac.jp
+nakai.ayano@nitech.ac.jp
 
 ## Acknowledgment
 Some parts of functions are based on the implementation by Haitao Liu (Liu et al., 2018).
